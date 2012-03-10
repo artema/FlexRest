@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<componentPackage>
+	<component id="CompositeSerializationFilter" class="mx.rpc.http.CompositeSerializationFilter"/>
+    <component id="JSONSerializationFilter" class="mx.rpc.http.JSONSerializationFilter"/>
+    <component id="RESTSerializationFilter" class="mx.rpc.http.RESTSerializationFilter"/>
+</componentPackage>

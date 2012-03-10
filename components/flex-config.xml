@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flex-config >
+	<compiler>
+		<define>
+			<name>SETUP::LEGACY</name>
+			<value>false</value>
+		</define>
+		<define>
+			<name>SETUP::MODERN</name>
+			<value>true</value>
+		</define>
+	</compiler>
+	
+	<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
+</flex-config>

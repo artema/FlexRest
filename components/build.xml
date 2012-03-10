@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="FlexREST" basedir="." default="release">
+	<property environment="env" />
+	
+	<fail unless="env.FLEX_HOME" message="FLEX_HOME needs to be defined as an environment variable or in the Ant build." />
+
+	<property file="build.properties" />
+	
+	<property name="FLEX_HOME" location="${env.FLEX_HOME}" />
+	
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+
+	<taskdef resource="flexUnitTasks.tasks">
+	   <classpath>
+	      <fileset dir="${TESTS_DIR}/libs">
+	         <include name="flexUnitTasks*.jar" />
+	      </fileset>
+	   </classpath>
+	</taskdef>
+	
+	<target name="clean">
+		<mkdir dir="${REPORTS_DIR}" />
+        <delete failonerror="false">        	
+        	<fileset dir="${OUTPUT_DIR}" includes="*" />
+            <fileset dir="${DOCS_DIR}" includes="*" />
+        	<fileset dir="${REPORTS_DIR}" includes="*" />
+        	<fileset dir="${TESTS_DIR}/bin" includes="*" />
+        </delete>
+    </target>
+	
+	<target name="docs">
+		<echo>Exporting documentation...</echo>
+		<java 
+			jar="${FLEX_HOME}/lib/asdoc.jar"
+			dir="${FLEX_HOME}/frameworks" 
+			fork="true" 
+			failonerror="true"
+		>
+			<arg value="-load-config"/>
+			<arg path="${FLEX_HOME}/frameworks/flex-config.xml"/>
+			<arg value="-load-config"/>
+			<arg path="flex-config.xml"/> 
+		    <arg value="-source-path"/> 
+		    <arg path="${SOURCE_DIR}"/> 
+		    <arg value="-doc-sources"/> 
+		    <arg path="${SOURCE_DIR}"/> 
+		    <arg value="-output"/> 
+		    <arg path="${DOCS_DIR}"/>
+		    <arg line="-library-path+='${LIBS_DIR}'"/>
+		</java>
+	</target>
+	
+	<target name="test">
+		<echo>Running tests for FP9 version...</echo>
+		<mxmlc file="${TESTS_DIR}/src/${TEST_APP}.mxml" output="${TESTS_DIR}/bin/${TEST_APP}.swf">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<source-path path-element="${SOURCE_DIR}" />
+			<source-path path-element="${TESTS_DIR}/src" />
+			<library-path dir="${TESTS_DIR}/libs" append="true">
+    			<include name="*.swc" />
+    		</library-path>
+			<library-path dir="${LIBS_DIR}" append="true">
+    			<include name="*.swc" />
+    		</library-path>
+			<compiler.headless-server>true</compiler.headless-server>
+			<arg value="-use-network" />
+			<arg value="-target.player=${LEGACY_FP_VERSION}" />
+			<compiler.define name="SETUP::MODERN" value="false" />
+			<compiler.define name="SETUP::LEGACY" value="true" />
+		</mxmlc>
+		<flexunit 
+			swf="${TESTS_DIR}/bin/${TEST_APP}.swf" 
+			toDir="${REPORTS_DIR}"
+			haltonfailure="false"
+			verbose="true" 
+			localTrusted="true" 
+			player="flash" />
+		<echo>Running tests for FP11 version...</echo>
+		<mxmlc file="${TESTS_DIR}/src/${TEST_APP}.mxml" output="${TESTS_DIR}/bin/${TEST_APP}.swf">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<source-path path-element="${SOURCE_DIR}" />
+			<source-path path-element="${TESTS_DIR}/src" />
+			<library-path dir="${TESTS_DIR}/libs" append="true">
+    			<include name="*.swc" />
+    		</library-path>
+			<compiler.headless-server>true</compiler.headless-server>
+			<arg value="-use-network" />
+			<arg value="-target.player=${MODERN_FP_VERSION}" />
+			<compiler.define name="SETUP::MODERN" value="true" />
+			<compiler.define name="SETUP::LEGACY" value="false" />
+		</mxmlc>
+		<flexunit 
+			swf="${TESTS_DIR}/bin/${TEST_APP}.swf" 
+			toDir="${REPORTS_DIR}"
+			haltonfailure="false"
+			verbose="true" 
+			localTrusted="true" 
+			player="flash" />
+		<echo>Tests complete</echo>
+		<junitreport todir="${REPORTS_DIR}">
+			<fileset dir="${REPORTS_DIR}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${REPORTS_DIR}" />
+		</junitreport>
+		<delete failonerror="false">
+			<fileset dir="${REPORTS_DIR}">
+				<include name="TESTS-*.xml" />
+				<include name="TEST-*.xml" />
+			</fileset>
+		</delete>
+	</target>
+
+    <target name="build">
+    	<echo>Building FP9 version...</echo>
+    	<compc 
+            output="${OUTPUT_DIR}/FlexRest_${VERSION}_FP9.swc"
+    		locale="en_US"
+    		debug="false"
+    		optimize="true"
+    	>
+    		<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+    		<source-path path-element="${SOURCE_DIR}" />
+    		<include-sources dir="${SOURCE_DIR}" includes="*"/>
+    		<library-path dir="${LIBS_DIR}" append="true">
+    			<include name="*.swc" />
+    		</library-path>
+    		<compiler.define name="SETUP::MODERN" value="false" />
+    		<compiler.define name="SETUP::LEGACY" value="true" />
+    		<metadata>
+				<creator>Artem Abashev</creator>
+				<language>EN</language>
+			</metadata>
+    		<namespace uri="${NAMESPACE}" manifest="${basedir}/manifest.xml" />
+    		<include-namespaces>${NAMESPACE}</include-namespaces>
+    		<arg value="-compiler.compress" />
+    		<arg value="-use-network" />
+    		<arg value="-target.player=${LEGACY_FP_VERSION}" />
+    		<external-library-path file="${FLEX_HOME}/frameworks/libs/framework.swc" append="true"/>
+    		<external-library-path file="${FLEX_HOME}/frameworks/libs/rpc.swc" append="true"/>
+        </compc>
+    	<echo>Building FP11 version...</echo>
+    	<compc 
+            output="${OUTPUT_DIR}/FlexRest_${VERSION}_FP11.swc"
+    		locale="en_US"
+    		debug="false"
+    		optimize="true"
+    	>
+    		<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+    		<source-path path-element="${SOURCE_DIR}" />
+    		<include-sources dir="${SOURCE_DIR}" includes="*"/>
+    		<compiler.define name="SETUP::MODERN" value="true" />
+    		<compiler.define name="SETUP::LEGACY" value="false" />
+    		<metadata>
+				<creator>Artem Abashev</creator>
+				<language>EN</language>
+			</metadata>
+    		<namespace uri="${NAMESPACE}" manifest="${basedir}/manifest.xml" />
+    		<include-namespaces>${NAMESPACE}</include-namespaces>
+    		<arg value="-compiler.compress" />
+    		<arg value="-use-network" />
+    		<arg value="-target.player=${MODERN_FP_VERSION}" />
+    		<external-library-path file="${FLEX_HOME}/frameworks/libs/framework.swc" append="true"/>
+    		<external-library-path file="${FLEX_HOME}/frameworks/libs/rpc.swc" append="true"/>
+        </compc>    	
+    </target>
+	
+	<target name="release" depends="clean,build,test,docs" />
+</project>

@@ -1,0 +1,10 @@
+.FlexUnitSettings
+.metadata
+.settings
+.DS_Store
+bin-debug/
+bin-release/
+release/
+reports/
+docs/
+bin/
