@@ -214,6 +214,27 @@ bc. <mx:HTTPOperation
 
 Setting @resultFormat@ to any other value, besides @array@ and @object@ (default) will result in a @JSONSerializationFilter@ (or any other @TypedSerializationFilter@) to be suppressed in a selected @HTTPOperation@.
 
+---
+
 Static @mx.utils.TypeUtil@ class can be used for all type castings listed above.
 
 @mx.rpc.OperationResponder@ can be used to make operation handlers more straightforward. It mimics Flex's @AsyncResponder@ class, but with a different result/fault functions signatures. A valid result handler signature is @function(valueObject:Object):void@. A result handler function will receive @ResultEvent.result@ value, so you can just set your result type in a handler: @function(valueObject:MyResultClass):void@. A valid fault handler signature is @function(fault:Fault):void@.
+
+<pre><code>import mx.rpc.OperationResponder;
+		
+import vo.User;
+		
+private function getUser():void
+{	
+	service.getOperation("getUser").send().addResponder(new OperationResponder(onResult, onFault));
+}
+
+private function onResult(user:User):void
+{
+	trace(user.firstName);
+}
+
+private function onFault(fault:Fault):void
+{
+	trace(fault.faultDetail);
+}</code></pre>
