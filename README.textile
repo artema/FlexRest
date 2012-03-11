@@ -107,10 +107,10 @@ For example, when you receive this:
 		"lastName":"Smith"
 	}
 	"wheels":[
-		{ "position": { "x":1, y:1 } },
-		{ "position": { "x":1, y:-1 } },
-		{ "position": { "x":-1, y:1 } },
-		{ "position": { "x":-1, y:-1 } }
+		{ "position": { "x":1, "y":1 } },
+		{ "position": { "x":1, "y":-1 } },
+		{ "position": { "x":-1, "y":1 } },
+		{ "position": { "x":-1, "y":-1 } }
 	]
 }
 </code></pre>
@@ -137,7 +137,7 @@ public class Wheel
 {
 	public var position:Point;
 }</code></pre>
-Just like this:
+Using the following code:
 
 bc. <fx:Declarations>
 	<mx:HTTPMultiService
@@ -155,6 +155,10 @@ bc. <fx:Declarations>
 			</rest:CompositeSerializationFilter>
 		</mx:serializationFilter>		
 		<mx:operationList>
+			<!-- 
+				Note that there is a resultElementType
+				property set on the operation
+			-->
 			<mx:HTTPOperation
 				name="getCar"
 				url="Car/[ID]"
@@ -207,5 +211,7 @@ bc. <mx:HTTPOperation
 }</code></pre>
 
 @JSONSerializationFilter@ is an implementation of an abstract @TypedSerializationFilter@ that handles types transformation, while a concrete child class handles actual data serialization and deserialization.
+
+Setting @resultFormat@ to any other value, besides @array@ and @object@ (default) will result in a @JSONSerializationFilter@ (or any other @TypedSerializationFilter@) to be suppressed in a selected @HTTPOperation@.
 
 Static @mx.utils.TypeUtil@ class can be used for all type castings listed above.
