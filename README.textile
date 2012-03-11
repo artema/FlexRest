@@ -1,0 +1,236 @@
+There are three custom SerializationFilters that can make your life easier.
+
+h1. CompositeSerializationFilter
+
+Composite design pattern implementation for HTTP serialization filters. Override any of 5 SerializationFilter's methods using different filter instances:
+```
+<mx:HTTPService>
+	<mx:serializationFilter>
+		<rest:CompositeSerializationFilter>
+			<!-- Serialize requests in JSON -->
+			<rest:bodySerializer>
+				<rest:JSONSerializationFilter />
+			</rest:bodySerializer>
+			<!-- Deserialize replies in JSON -->
+			<rest:resultDeserializer>
+				<rest:JSONSerializationFilter />
+			</rest:resultDeserializer>
+			<!-- Build REST-style URLs dynamically -->
+			<rest:urlSerializer>
+				<rest:RESTSerializationFilter />
+			</rest:urlSerializer>
+			<!-- Use custom HTTP methods -->
+			<rest:parametersSerializer>
+				<rest:RESTSerializationFilter />
+			</rest:parametersSerializer>
+		</rest:CompositeSerializationFilter>
+	</mx:serializationFilter>
+</mx:HTTPMultiService>
+```
+SerializationFilter's methods that can be overriden:
+* @deserializeResult@
+* @getRequestContentType@
+* @serializeParameters@
+* @serializeBody@
+* @serializeURL@
+
+Methods that are not overridden are handled using a regular SerializationFilter.
+
+h1. RESTSerializationFilter
+
+Implements @serializeParameters@ and @serializeURL@ methods.
+
+```
+<fx:Declarations>
+	<mx:HTTPMultiService
+		id="service"
+		baseURL="http://example.com/api/"	
+	>
+		<mx:serializationFilter>
+			<rest:CompositeSerializationFilter>
+				<rest:urlSerializer>
+					<rest:RESTSerializationFilter />
+				</rest:urlSerializer>
+				<rest:parametersSerializer>
+					<rest:RESTSerializationFilter />
+				</rest:parametersSerializer>
+			</rest:CompositeSerializationFilter>
+		</mx:serializationFilter>
+		
+		<mx:operationList>
+			<!-- 
+				[ID] and any other tokens will be automatically 
+				replaced by variables from operation arguments object 
+			-->
+			<mx:HTTPOperation
+				name="getUser"
+				url="User/[ID]" />
+			
+			<!--
+				Request will be sent as a POST request
+				with a "_method"="DELETE" variable
+			-->
+			<mx:HTTPOperation
+				name="deleteUser"
+				url="User/[ID]"
+				method="DELETE" />
+		</mx:operationList>
+	</mx:HTTPMultiService>
+</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.rpc.AbstractOperation;
+		import mx.rpc.AsyncToken;
+		
+		import vo.User;
+		
+		private function getUser(userId:uint):AsyncToken
+		{
+			var operation:AbstractOperation = service.getOperation("getUser");
+			operation.arguments = { ID: userId };
+			
+			return operation.send();
+		}
+	]]>
+</fx:Script>
+```
+
+h1. JSONSerializationFilter
+
+Implements @deserializeResult@ and @serializeBody@ methods.
+
+Serialize requests and deserialize replies in JSON with a fast native JSON parser (only in FP11 version; FP9 version is relying on as3corelib's JSON parser). Requests and replies can be converted from and into strongly-typed objects on the fly. The following object mapping features are available:
+* Incoming arrays can be mapped to strongly-typed vectors or arrays of typed objects.
+* @ArrayElementType@ metatag can be used to map arrays of typed objects.
+* @Transient@ metatag is respected both in requests and responses.
+* Date strings in JSON format @/Date(1325376000000)/@ can be converted to @Date@ objects, and vice versa.
+
+For example, when you receive this:
+```
+{
+	"owner":{
+		"birthday":"/Date(1325376000000)/",
+		"firstName":"John",
+		"lastName":"Smith"
+	}
+	"wheels":[
+		{ "position": { "x":1, y:1 } },
+		{ "position": { "x":1, y:-1 } },
+		{ "position": { "x":-1, y:1 } },
+		{ "position": { "x":-1, y:-1 } }
+	]
+}
+```
+It can be converted into these:
+```
+package vo
+{
+	public class User
+	{
+		public var birthday:Date;		
+		public var firstName:String;		
+		public var lastName:String;
+	}
+	
+	public class Car
+	{
+		public var owner:User;
+		
+		[ArrayElementType("vo.Wheel")]
+		public var wheels:Array;
+		
+		//You can just use vectors instead
+		//public var wheels:Vector.<Wheel>;
+	}
+	
+	import flash.geom.Point;
+	
+	public class Wheel
+	{
+		public var position:Point;
+	}
+}
+```
+Just like this:
+```
+<fx:Declarations>
+	<mx:HTTPMultiService
+		id="service"
+		baseURL="http://example.com/api/"	
+	>
+		<mx:serializationFilter>
+			<rest:CompositeSerializationFilter>
+				<rest:bodySerializer>
+					<rest:JSONSerializationFilter />
+				</rest:bodySerializer>
+				<rest:resultDeserializer>
+					<rest:JSONSerializationFilter />
+				</rest:resultDeserializer>
+			</rest:CompositeSerializationFilter>
+		</mx:serializationFilter>
+		
+		<mx:operationList>
+			<mx:HTTPOperation
+				name="getCar"
+				url="Car/[ID]"
+				method="GET"
+				resultElementType="{Car}"
+				result="onCarLoaded(event)" />
+
+		</mx:operationList>
+	</mx:HTTPMultiService>
+</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		
+		import vo.Car;
+		import vo.User;
+		import vo.Wheel;
+		
+		private function onCarLoaded(event:ResultEvent):void
+		{
+			var car:Car = Car(event.result);
+			var wheels:Vector.<Wheel> = car.wheels;
+			
+			var owner:User = car.owner;
+			var birthday:Date = owner.birthday;
+		}
+	]]>
+</fx:Script>
+```
+
+If you have an array of objects...
+```
+[
+	{ "x":1, "y":5 },
+	{ "x":2, "y":4 },
+	{ "x":3, "y":3 },
+	{ "x":4, "y":2 },
+	{ "x":5, "y":1 }
+]
+```
+...you can receive it as an array of strongly-typed objects by setting @resultFormat="array"@ and @resultElementType="{ElementClass}"@. By default, all arrays are wrapped into an @ArrayCollection@. To avoid this behavior, just set @makeObjectsBindable="false"@ on the operation instance.
+
+```
+<mx:HTTPOperation
+	name="getPoints"
+	url="Points/[FROM]/[TO]"
+	resultFormat="array"
+	makeObjectsBindable="false"
+	resultElementType="{Point}"
+	result="onPointsLoaded(event)" />
+```
+```
+private function onPointsLoaded(event:ResultEvent):void
+{
+	trace(event.result.length);
+	
+	for each(var point:Point in event.result)
+		trace(point.x + point.y);
+}
+```
+
+@JSONSerializationFilter@ is an implementation of an abstract @TypedSerializationFilter@ that handles types transformation, while a concrete child class handles actual data serialization and deserialization.
+
+Static @mx.utils.TypeUtil@ class can be used for all type castings listed above.
