@@ -47,7 +47,7 @@ Methods that are not overridden are handled using a regular SerializationFilter.
 
 h1. RESTSerializationFilter
 
-Implements @serializeParameters@ and @serializeURL@ methods.
+Implements @serializeParameters@, @contentTypeProvider@ and @serializeURL@ methods.
 
 bc. <fx:Declarations>
 	<mx:HTTPMultiService
@@ -99,7 +99,7 @@ private function getUser(userId:uint):AsyncToken
 
 h1. JSONSerializationFilter
 
-Implements @deserializeResult@ and @serializeBody@ methods.
+Implements @deserializeResult@, @contentTypeProvider@ and @serializeBody@ methods.
 
 Serialize requests and deserialize replies in JSON with a fast native JSON parser (only in FP11 version; FP9 version is relying on as3corelib's JSON parser). Requests and replies can be converted from and into strongly-typed objects on the fly. The following object mapping features are available:
 * Incoming arrays can be mapped to strongly-typed vectors or arrays of typed objects.
