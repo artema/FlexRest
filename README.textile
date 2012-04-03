@@ -23,6 +23,10 @@ bc. <mx:HTTPService>
 			<rest:parametersSerializer>
 				<rest:RESTSerializationFilter />
 			</rest:parametersSerializer>
+			<!-- Set request content type to application/json -->
+			<rest:contentTypeProvider>
+				<rest:JSONSerializationFilter />
+			</rest:contentTypeProvider>
 		</rest:CompositeSerializationFilter>
 	</mx:serializationFilter>
 </mx:HTTPMultiService>
@@ -152,6 +156,15 @@ bc. <fx:Declarations>
 				<rest:resultDeserializer>
 					<rest:JSONSerializationFilter />
 				</rest:resultDeserializer>
+				<!-- Force request content type to application/json -->
+				<rest:contentTypeProvider>
+					<rest:JSONSerializationFilter />
+				</rest:contentTypeProvider>
+				<!-- You can also provide your own content type
+				<rest:contentTypeProvider>
+					<rest:RESTSerializationFilter requestContentType="text/html" />
+				</rest:contentTypeProvider>
+				-->
 			</rest:CompositeSerializationFilter>
 		</mx:serializationFilter>		
 		<mx:operationList>
