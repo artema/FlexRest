@@ -35,6 +35,17 @@ package mx.rpc.http
 	{
 		//--------------------------------------------------------------------------
 		//
+		//  Public properties
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * Request content type.
+		 */
+		public var requestContentType:String;
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Public methods
 		//
 		//--------------------------------------------------------------------------
@@ -71,6 +82,16 @@ package mx.rpc.http
 			}
 			
 			return url;
+		}
+		
+		override public function getRequestContentType(operation:AbstractOperation, obj:Object, contentType:String):String
+		{
+			contentType = requestContentType != null 
+				? requestContentType
+				: contentType;
+			
+			operation.contentType = contentType;
+			return contentType;
 		}
 	}
 }

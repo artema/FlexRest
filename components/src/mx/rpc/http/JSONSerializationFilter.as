@@ -63,5 +63,11 @@ package mx.rpc.http
 		{
 			return JSONUtil.serialize(object);
 		}
+		
+		override public function getRequestContentType(operation:AbstractOperation, obj:Object, contentType:String):String
+		{
+			operation.contentType = CONTENT_TYPE_JSON;
+			return CONTENT_TYPE_JSON;
+		}
 	}
 }
