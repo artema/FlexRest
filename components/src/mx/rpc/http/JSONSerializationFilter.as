@@ -23,11 +23,6 @@ package mx.rpc.http
 	 */
 	public class JSONSerializationFilter extends TypedSerializationFilter
 	{
-		/**
-		 * Indicates that the data is encoded as application/json.
-		 */
-		static public const CONTENT_TYPE_JSON:String = "application/json";
-		
 		//--------------------------------------------------------------------------
 		//
 		//  Abstract methods implementation
@@ -52,12 +47,6 @@ package mx.rpc.http
 		override protected function serialize(object:Object):String
 		{
 			return JSONUtil.serialize(object);
-		}
-		
-		override public function getRequestContentType(operation:AbstractOperation, obj:Object, contentType:String):String
-		{
-			operation.contentType = CONTENT_TYPE_JSON;
-			return CONTENT_TYPE_JSON;
 		}
 	}
 }

@@ -15,7 +15,11 @@
  */
 package mx.rpc.http
 {
+	import flash.events.Event;
+	
 	import mx.messaging.messages.HTTPRequestMessage;
+	import mx.rpc.events.FaultEvent;
+	import mx.rpc.events.ResultEvent;
 
 	/**
 	 * REST <code>SerializationFilter</code>.
@@ -23,6 +27,11 @@ package mx.rpc.http
 	 */
 	public class RESTSerializationFilter extends SerializationFilter
 	{
+		/**
+		 * Indicates that the data is encoded as application/json.
+		 */
+		static public const CONTENT_TYPE_JSON:String = "application/json";
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Public properties
@@ -42,22 +51,39 @@ package mx.rpc.http
 		
 		override public function serializeParameters(operation:AbstractOperation, params:Array):Object
 		{
-			if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
+			if(operation.method == HTTPRequestMessage.POST_METHOD)
 			{
-				if(operation.argumentNames == null)
-					operation.argumentNames = [];
-				
-				if(params == null)
-					params = [];
-				
-				if(operation.argumentNames.indexOf("_method") == -1)
-				{
-					operation.argumentNames.push("_method");
-					params.push(operation.method);
-				}
+				if(params.length > 1) return params;
+				else if(params.length == 1) return params[0];
 			}
 			
-			return super.serializeParameters(operation, params);
+			if(operation.argumentNames == null)
+				operation.argumentNames = [];			
+			
+			var parameters:Array = [];
+
+			if(params.length > 0 && typeof(params[0]) == "object")
+			{
+				var object:Object = params[0];
+				
+				for(var p:String in object)
+				{
+					operation.argumentNames.push(p);
+					parameters.push(object[p]);
+				}
+			}
+
+			if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
+			{
+				operation.argumentNames.push("_method");
+				parameters.push(operation.method);
+			}
+			
+			var obj:Object = new Object();
+			for (var i:int = 0; i < operation.argumentNames.length && i < parameters.length; i++)
+				obj[operation.argumentNames[i]] = parameters[i];
+			
+			return obj;
 		}
 		
 		override public function serializeURL(operation:AbstractOperation, obj:Object, url:String):String
@@ -76,6 +102,31 @@ package mx.rpc.http
 		
 		override public function getRequestContentType(operation:AbstractOperation, obj:Object, contentType:String):String
 		{
+			if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
+			{		
+				operation.contentType = HTTPRequestMessage.CONTENT_TYPE_FORM;
+				
+				var method:String = operation.method;
+				
+				var result:Function = function(e:Event):void
+				{
+					operation.method = method;
+					operation.removeEventListener(ResultEvent.RESULT, arguments.callee);
+				}
+					
+				var fault:Function = function(e:Event):void
+				{
+					operation.method = method;
+					operation.removeEventListener(FaultEvent.FAULT, arguments.callee);
+				}
+				
+				operation.addEventListener(ResultEvent.RESULT, result);				
+				operation.addEventListener(FaultEvent.FAULT, fault);
+				
+				operation.method = HTTPRequestMessage.POST_METHOD;
+				return HTTPRequestMessage.CONTENT_TYPE_FORM;
+			}
+			
 			contentType = requestContentType != null 
 				? requestContentType
 				: contentType;
