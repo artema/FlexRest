@@ -27,6 +27,10 @@ bc. <mx:HTTPService>
 			<rest:contentTypeProvider>
 				<rest:JSONSerializationFilter />
 			</rest:contentTypeProvider>
+			<!-- You can also provide your own content type which will be applied to all operations. -->
+			<!--<rest:contentTypeProvider>
+				<rest:RESTSerializationFilter requestContentType="text/html" />
+			</rest:contentTypeProvider>-->
 		</rest:CompositeSerializationFilter>
 	</mx:serializationFilter>
 </mx:HTTPMultiService>
@@ -163,11 +167,6 @@ bc. <fx:Declarations>
 				<rest:contentTypeProvider>
 					<rest:JSONSerializationFilter />
 				</rest:contentTypeProvider>
-				<!-- You can also provide your own content type 
-				     which will be applied to all operations. -->
-				<!--<rest:contentTypeProvider>
-					<rest:RESTSerializationFilter requestContentType="text/html" />
-				</rest:contentTypeProvider>-->				
 			</rest:CompositeSerializationFilter>
 		</mx:serializationFilter>		
 		<mx:operationList>
