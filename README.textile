@@ -156,15 +156,18 @@ bc. <fx:Declarations>
 				<rest:resultDeserializer>
 					<rest:JSONSerializationFilter />
 				</rest:resultDeserializer>
-				<!-- Force request content type to application/json -->
+				<!-- Forces request content type to be 'application/json'.
+				     This is required in order to encode requests in JSON.
+				     If content type is not changed either this way, or manually,
+				     Flex will handle request body encoding by itself. -->
 				<rest:contentTypeProvider>
 					<rest:JSONSerializationFilter />
 				</rest:contentTypeProvider>
-				<!-- You can also provide your own content type
-				<rest:contentTypeProvider>
+				<!-- You can also provide your own content type 
+				     which will be applied to all operations. -->
+				<!--<rest:contentTypeProvider>
 					<rest:RESTSerializationFilter requestContentType="text/html" />
-				</rest:contentTypeProvider>
-				-->
+				</rest:contentTypeProvider>-->				
 			</rest:CompositeSerializationFilter>
 		</mx:serializationFilter>		
 		<mx:operationList>
