@@ -20,6 +20,7 @@ package mx.rpc.http
 	import mx.messaging.messages.HTTPRequestMessage;
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
+	import mx.utils.ObjectUtil;
 
 	/**
 	 * REST <code>SerializationFilter</code>.
@@ -51,37 +52,49 @@ package mx.rpc.http
 		
 		override public function serializeParameters(operation:AbstractOperation, params:Array):Object
 		{
+			var parameters:Object = prepareParams(operation, params);
+			
 			if(operation.method == HTTPRequestMessage.POST_METHOD)
 			{
-				if(params.length > 1) return params;
-				else if(params.length == 1) return params[0];
+				return parameters;
 			}
-			
-			if(operation.argumentNames == null)
-				operation.argumentNames = [];			
-			
-			var parameters:Array = [];
 
-			if(params.length > 0 && typeof(params[0]) == "object")
+			var obj:Object = new Object();
+			
+			if (typeof(parameters) == "object")
 			{
-				var object:Object = params[0];
+				var classinfo:Object = ObjectUtil.getClassInfo(parameters);
+				var value:Object;
 				
-				for(var p:String in object)
+				for each (var p:* in classinfo.properties)
 				{
-					operation.argumentNames.push(p);
-					parameters.push(object[p]);
+					value = parameters[p];
+					
+					if (value != null)
+					{
+						if (value is Array)
+							obj[p] = value;
+						else
+							obj[p] = value.toString();
+					}
 				}
 			}
-
-			if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
+			else
 			{
-				operation.argumentNames.push("_method");
-				parameters.push(operation.method);
+				obj = parameters;
 			}
 			
-			var obj:Object = new Object();
-			for (var i:int = 0; i < operation.argumentNames.length && i < parameters.length; i++)
-				obj[operation.argumentNames[i]] = parameters[i];
+			try
+			{
+				if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
+				{
+					obj["_method"] = operation.method
+				}
+			}
+			catch(e:Error)
+			{
+				throw new Error("Invalid request object.");
+			}
 			
 			return obj;
 		}
@@ -133,6 +146,49 @@ package mx.rpc.http
 			
 			operation.contentType = contentType;
 			return contentType;
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Helper methods
+		//
+		//--------------------------------------------------------------------------
+		
+		static private function prepareParams(operation:AbstractOperation, args:Array):Object
+		{
+			var params:Object = args;
+			
+			if(!params || (params.length == 0 && operation.request))
+				params = operation.request;
+			
+			if(params is Array && operation.argumentNames != null)
+			{
+				args = params as Array;
+				
+				if(args.length != operation.argumentNames.length)
+				{
+					throw new ArgumentError("Operation called with " + operation.argumentNames.length + " argumentNames and " + args.length + " number of parameters." + 
+						" When argumentNames is specified, it must match the number of arguments passed to the invocation");
+				}
+				else
+				{
+					if (operation.argumentNames.length == 1 && operation.contentType == HTTPRequestMessage.CONTENT_TYPE_XML)
+					{
+						params = args[0];
+					}
+					else
+					{
+						for(var i:int = 0; i < operation.argumentNames.length; i++)
+							params[operation.argumentNames[i]] = args[i];
+					}
+				}
+			}
+			else if (args.length == 1) 
+				params = args[0];
+			else if (args.length != 0)
+				throw new ArgumentError("You must set argumentNames to an array of parameter names if you use more than one parameter.");
+
+			return params;
 		}
 	}
 }
