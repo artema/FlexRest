@@ -25,12 +25,8 @@ bc. <mx:HTTPService>
 			</rest:parametersSerializer>
 			<!-- Set request content type to application/json -->
 			<rest:contentTypeProvider>
-				<rest:JSONSerializationFilter />
+				<rest:RESTSerializationFilter requestContentType="{RESTSerializationFilter.CONTENT_TYPE_JSON}" />
 			</rest:contentTypeProvider>
-			<!-- You can also provide your own content type which will be applied to all operations. -->
-			<!--<rest:contentTypeProvider>
-				<rest:RESTSerializationFilter requestContentType="text/html" />
-			</rest:contentTypeProvider>-->
 		</rest:CompositeSerializationFilter>
 	</mx:serializationFilter>
 </mx:HTTPMultiService>
@@ -56,9 +52,16 @@ bc. <fx:Declarations>
 	>
 		<mx:serializationFilter>
 			<rest:CompositeSerializationFilter>
+				<!-- This serializer is required in order to convert custom HTTP verbs to POST 
+				     and to set content type to 'application/x-www-form-urlencoded'. -->
+				<rest:contentTypeProvider>
+					<rest:RESTSerializationFilter />
+				</rest:contentTypeProvider>
+				<!-- This serializer will replace square bracket tokens in URLs. -->
 				<rest:urlSerializer>
 					<rest:RESTSerializationFilter />
 				</rest:urlSerializer>
+				<!-- This serializer will add a '_method' variable to your requests. -->			
 				<rest:parametersSerializer>
 					<rest:RESTSerializationFilter />
 				</rest:parametersSerializer>
@@ -95,6 +98,8 @@ private function getUser(userId:uint):AsyncToken
 	operation.arguments = { ID: userId }; //replace URL tokens
 			
 	return operation.send();
+	//You can also add your variable to requests:
+	//return operation.send({ varname: "varvalue" });
 }</code></pre>
 
 h1. JSONSerializationFilter
@@ -154,19 +159,26 @@ bc. <fx:Declarations>
 	>
 		<mx:serializationFilter>
 			<rest:CompositeSerializationFilter>
+				<!-- Serialize requests from objects to JSON. -->
 				<rest:bodySerializer>
 					<rest:JSONSerializationFilter />
 				</rest:bodySerializer>
+				<!-- Deserialize replies from JSON to strongly-typed objects. -->
 				<rest:resultDeserializer>
 					<rest:JSONSerializationFilter />
 				</rest:resultDeserializer>
-				<!-- Forces request content type to be 'application/json'.
+				<!-- Forces requests content type to be 'application/json'.
 				     This is required in order to encode requests in JSON.
-				     If content type is not changed either this way, or manually,
-				     Flex will handle request body encoding by itself. -->
+				     If content type is not changed either this way, 
+				     or manually on an operation, Flex will handle 
+				     request body encoding by itself. -->
 				<rest:contentTypeProvider>
-					<rest:JSONSerializationFilter />
+					<rest:RESTSerializationFilter requestContentType="{RESTSerializationFilter.CONTENT_TYPE_JSON}" />
 				</rest:contentTypeProvider>
+				<!-- This serializer is required for JSON requests. -->
+				<rest:parametersSerializer>
+					<rest:RESTSerializationFilter />
+				</rest:parametersSerializer>
 			</rest:CompositeSerializationFilter>
 		</mx:serializationFilter>		
 		<mx:operationList>
