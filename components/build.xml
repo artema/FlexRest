@@ -63,18 +63,20 @@
     			<include name="*.swc" />
     		</library-path>
 			<compiler.headless-server>true</compiler.headless-server>
+			<arg value="+configname=air" />
 			<arg value="-use-network" />
-			<arg value="-target.player=${LEGACY_FP_VERSION}" />
+			<arg value="-target.player=${LEGACY_FP_VERSION}" />			
 			<compiler.define name="SETUP::MODERN" value="false" />
 			<compiler.define name="SETUP::LEGACY" value="true" />
 		</mxmlc>
 		<flexunit 
-			swf="${TESTS_DIR}/bin/${TEST_APP}.swf" 
+			swf="${TESTS_DIR}/bin/${TEST_APP}.swf"
+			command="${FLEX_HOME}/bin/adl.exe"
 			toDir="${REPORTS_DIR}"
 			haltonfailure="false"
 			verbose="true" 
 			localTrusted="true" 
-			player="flash" />
+			player="air" />
 		<echo>Running tests for FP11 version...</echo>
 		<mxmlc file="${TESTS_DIR}/src/${TEST_APP}.mxml" output="${TESTS_DIR}/bin/${TEST_APP}.swf">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
@@ -84,6 +86,7 @@
     			<include name="*.swc" />
     		</library-path>
 			<compiler.headless-server>true</compiler.headless-server>
+			<arg value="+configname=air" />
 			<arg value="-use-network" />
 			<arg value="-target.player=${MODERN_FP_VERSION}" />
 			<compiler.define name="SETUP::MODERN" value="true" />
@@ -91,11 +94,12 @@
 		</mxmlc>
 		<flexunit 
 			swf="${TESTS_DIR}/bin/${TEST_APP}.swf" 
+			command="${FLEX_HOME}/bin/adl.exe"
 			toDir="${REPORTS_DIR}"
 			haltonfailure="false"
 			verbose="true" 
 			localTrusted="true" 
-			player="flash" />
+			player="air" />
 		<echo>Tests complete</echo>
 		<junitreport todir="${REPORTS_DIR}">
 			<fileset dir="${REPORTS_DIR}">
