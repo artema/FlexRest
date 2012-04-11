@@ -19,7 +19,7 @@ package mx.rpc.http
 	 * Composite <code>SerializationFilter</code>.
 	 * @author Artem Abashev
 	 */
-	final public class CompositeSerializationFilter extends SerializationFilter
+	public class CompositeSerializationFilter extends SerializationFilter
 	{
 		//--------------------------------------------------------------------------
 		//
