@@ -228,7 +228,7 @@ package mx.utils
 		static public function createRequestObject(regularObject:Object):Object
 		{
 			if(regularObject == null) return null;			
-			if(isBaseTypeObject(regularObject)) return regularObject;
+			if(isPrimitiveTypeObject(regularObject)) return regularObject;
 			
 			var classInfo:ClassInfo = new ClassInfo(regularObject);
 			var propertyInfo:ClassInfo;
@@ -236,7 +236,21 @@ package mx.utils
 			var value:Object;
 			var element:Object;
 			
-			for each(var p:String in classInfo.properties)
+			var properties:Vector.<String> = new Vector.<String>();
+			var p:String;
+			
+			if(classInfo.typeName == "Object")
+			{
+				for(p in regularObject)
+					properties.push(p);
+			}
+			else
+			{
+				for each(p in classInfo.properties)
+					properties.push(p);
+			}
+			
+			for each(p in properties)
 			{
 				//Check if there is a Transient metadata attribute set for this property
 				if(classInfo.propertyHasAttribute(p, "Transient")) continue;
@@ -263,7 +277,7 @@ package mx.utils
 				else if(!isBaseTypeObject(value))
 				{
 					result[p] = createRequestObject(value);
-				}
+				}				
 				//Property has a base type
 				else
 				{
@@ -282,11 +296,13 @@ package mx.utils
 		 * Checks if an object's type is a primitive or a core type.
 		 * @throws ArgumentError <code>null</code> argument passed.
 		 */
-		static public function isBaseTypeObject(object:Object):Boolean
+		static public function isPrimitiveTypeObject(object:Object):Boolean
 		{
 			if(object == null) throw new ArgumentError("Object cannot be null");
-
-			switch (typeof(object))
+			
+			var type:String = typeof(object);
+			
+			switch(type)
 			{
 				case "number":
 				case "string":
@@ -296,19 +312,32 @@ package mx.utils
 				{
 					return true;
 				}
-					
-				case "object":
-				{
-					var className:String = getQualifiedClassName(object);
-					
-					return (className == "Object") ||
-						(className == "Array") || 
-						(className == "Date") ||
-						(className == "Error") || 
-						(className == "RegExp");
-				}
 			}
 			
+			return false;
+		}
+		
+		/**
+		 * Checks if an object's type is a primitive or a core type.
+		 * @throws ArgumentError <code>null</code> argument passed.
+		 */
+		static public function isBaseTypeObject(object:Object):Boolean
+		{
+			if(object == null) throw new ArgumentError("Object cannot be null");
+
+			if(isPrimitiveTypeObject(object)) return true;
+
+			if(typeof(object) == "object")
+			{
+				var className:String = getQualifiedClassName(object);
+				
+				return (className == "Object") ||
+					(className == "Array") || 
+					(className == "Date") ||
+					(className == "Error") || 
+					(className == "RegExp");
+			}
+
 			return false;
 		}
 		

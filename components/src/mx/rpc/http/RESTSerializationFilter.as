@@ -23,6 +23,7 @@ package mx.rpc.http
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
 	import mx.utils.Base64Encoder;
+	import mx.utils.JSONUtil;
 	import mx.utils.ObjectUtil;
 	import mx.utils.URLUtil;
 
@@ -107,6 +108,8 @@ package mx.rpc.http
 					{
 						if (value is Array)
 							obj[p] = value;
+						else if (value is Date)
+							obj[p] = JSONUtil.serializeDate(value as Date);
 						else
 							obj[p] = value.toString();
 					}
