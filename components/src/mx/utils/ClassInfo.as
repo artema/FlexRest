@@ -38,7 +38,8 @@ package mx.utils
 			_fields = raw.variable;
 			_properties = raw.accessor.(@access == "readwrite");
 			
-			_arrays = _fields.(@type == "Array");
+			_fieldArrays = _fields.(@type == "Array");
+			_propertyArrays = _properties.(@type == "Array");
 		}
 		
 		//--------------------------------------------------------------------------
@@ -65,7 +66,9 @@ package mx.utils
 
 		private var _propertiesNames:Array;
 		
-		private var _arrays:XMLList;
+		private var _propertyArrays:XMLList;
+		
+		private var _fieldArrays:XMLList;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -117,25 +120,37 @@ package mx.utils
 		}
 		
 		public function getArrayElementType(property:String):Class
-		{
-			var typeNode:XML;
-			var type:String;
+		{			
+			var node:XML, match:XML;
 			
-			for each(var node:XML in _arrays)
+			for each(node in _fieldArrays)
 			{
 				if(node.@name != property) continue;
-				
-				typeNode = node.metadata.(@name == "ArrayElementType")[0];
-				
-				if(typeNode == null) return null;
-				
-				type = typeNode.arg.(@key == "").@value;
-				
-				if(type == "") 
-					type = typeNode.arg.(@key == "elementType").@value;
-				
-				if(type == "") return null;
+				match = node;	
 			}
+			
+			if(match == null)
+			{
+				for each(node in _propertyArrays)
+				{
+					if(node.@name != property) continue;
+					match = node;	
+				}
+			}
+			
+			if(match == null)
+				return null;
+
+			var typeNode:XML = match.metadata.(@name == "ArrayElementType")[0];
+			
+			if(typeNode == null) return null;
+			
+			var type:String = typeNode.arg.(@key == "").@value;
+			
+			if(type == "") 
+				type = typeNode.arg.(@key == "elementType").@value;
+			
+			if(type == "" || type == null) return null;
 
 			return Class(getDefinitionByName(type));
 		}
