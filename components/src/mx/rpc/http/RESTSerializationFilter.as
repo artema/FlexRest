@@ -74,6 +74,13 @@ package mx.rpc.http
 		 */
 		public var methodOverride:String = "header";
 		
+		[Inspectable(enumeration="json,default", defaultValue="json", category="General")]
+		/**
+		 * Date serialization format. Valid values are <code>json</code> and <code>default</code>.
+		 * The default value is <code>json</code>.
+		 */
+		public var dateSerialization:String = "json";
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Public methods
@@ -108,7 +115,7 @@ package mx.rpc.http
 					{
 						if (value is Array)
 							obj[p] = value;
-						else if (value is Date)
+						else if (value is Date && dateSerialization == "json")
 							obj[p] = JSONUtil.serializeDate(value as Date);
 						else
 							obj[p] = value.toString();
