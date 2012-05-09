@@ -40,5 +40,24 @@ package mx.rpc.http
 		 * OAuth version used in this request.
 		 */
 		public var oauth_version:String;
+		
+		public function toString():String
+		{
+			var pairs:Vector.<String> = new Vector.<String>();
+			var value:Object;			
+			
+			for(var p:String in this)
+			{
+				value = this[p] || "";
+				value = escape(value.toString());
+				p = escape(p);
+				
+				pairs.push(p + '="' + value + '"');
+			}
+			
+			return pairs.length == 0
+				? ""
+				: pairs.join(", ");
+		}
 	}
 }
