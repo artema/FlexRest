@@ -248,8 +248,8 @@ package mx.rpc.http
 				operation.removeEventListener(FaultEvent.FAULT, arguments.callee);
 			}
 			
-			operation.addEventListener(ResultEvent.RESULT, result);				
-			operation.addEventListener(FaultEvent.FAULT, fault);
+			operation.addEventListener(ResultEvent.RESULT, result, false, 0, true);				
+			operation.addEventListener(FaultEvent.FAULT, fault, false, 0, true);
 			
 			operation.method = HTTPRequestMessage.POST_METHOD;
 		}
