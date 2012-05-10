@@ -36,7 +36,7 @@ package mx.rpc.http
 		//
 		//--------------------------------------------------------------------------
 		
-		final override public function deserializeResult(operation:AbstractOperation, result:Object):Object
+		override public function deserializeResult(operation:AbstractOperation, result:Object):Object
 		{
 			if(result == null) return null;
 			
@@ -93,7 +93,7 @@ package mx.rpc.http
 			return createResultObject(rawObject, operation.resultElementType);
 		}
 		
-		final override public function serializeBody(operation:AbstractOperation, obj:Object):Object
+		override public function serializeBody(operation:AbstractOperation, obj:Object):Object
 		{
 			if(obj == null || 
 				(operation.contentType == AbstractOperation.CONTENT_TYPE_FORM || 
