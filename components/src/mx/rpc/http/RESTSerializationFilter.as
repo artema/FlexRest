@@ -41,6 +41,11 @@ package mx.rpc.http
 		//--------------------------------------------------------------------------
 		
 		/**
+		 * Do not override HTTP method.
+		 */
+		static public const METHOD_OVERRIDE_NONE:String = "none";
+		
+		/**
 		 * Override HTTP method using a X-HTTP-Method-Override header.
 		 */
 		static public const METHOD_OVERRIDE_HEADER:String = "header";
@@ -67,12 +72,12 @@ package mx.rpc.http
 		 */
 		public var requestContentType:String;
 
-		[Inspectable(enumeration="header,url,variable", defaultValue="header", category="General")]
+		[Inspectable(enumeration="none,header,url,variable", defaultValue="none", category="General")]
 		/**
-		 * HTTP method override type. Valid values are <code>header</code>, <code>url</code> and <code>variable</code>.
-		 * The default value is <code>header</code>.
+		 * HTTP method override type. Valid values are <code>none</code>, <code>header</code>, <code>url</code> and <code>variable</code>.
+		 * The default value is <code>none</code>.
 		 */
-		public var methodOverride:String = "header";
+		public var methodOverride:String = "none";
 		
 		[Inspectable(enumeration="json,default", defaultValue="json", category="General")]
 		/**
@@ -127,11 +132,9 @@ package mx.rpc.http
 				obj = parameters;
 			}
 
-			var intendedMethod:String = getIntendedMethod(operation);
-			
-			if(intendedMethod != null && methodOverride == METHOD_OVERRIDE_VARIABLE)
+			if(methodOverride == METHOD_OVERRIDE_VARIABLE)
 			{
-				obj["_method"] = intendedMethod;
+				obj["_method"] = operation.method;
 			}
 
 			return obj;
@@ -145,32 +148,30 @@ package mx.rpc.http
 		 */
 		override public function serializeURL(operation:AbstractOperation, obj:Object, url:String):String
 		{
-			var p:String;
-			var intendedMethod:String = getIntendedMethod(operation);
-
-			if(operation.properties == null && intendedMethod == null) return url;
-			
 			//Replace URL tokens with user-defined values
 			if(operation.properties != null)
 			{
-				for(p in operation.properties)
+				if(operation.properties != null)
 				{
-					var value:String = operation.properties[p].toString();				
-					url = url.replace("[" + p + "]", value);
+					for(var p:String in operation.properties)
+					{
+						var value:String = operation.properties[p].toString();				
+						url = url.replace("[" + p + "]", value);
+					}
 				}
 			}
 			
 			//Override request method by adding a _method variable to the URL
-			if(intendedMethod != null)
+			if(methodOverride != METHOD_OVERRIDE_NONE)
 			{
 				switch(methodOverride)
 				{
 					case METHOD_OVERRIDE_HEADER:
-						operation.headers["X-HTTP-Method-Override"] = intendedMethod;
+						operation.headers["X-HTTP-Method-Override"] = operation.method;
 						break;
 						
 					case METHOD_OVERRIDE_URL:
-						url = appendToUrl(url, "_method=" + intendedMethod);
+						url = appendToUrl(url, "_method=" + operation.method);
 						break;
 				}
 				
@@ -202,27 +203,7 @@ package mx.rpc.http
 		//  Helper methods
 		//
 		//--------------------------------------------------------------------------
-		
-		static private function getIntendedMethod(operation:AbstractOperation):String
-		{
-			//Override request method for custom HTTP verbs
-			if(operation.method != HTTPRequestMessage.GET_METHOD && operation.method != HTTPRequestMessage.POST_METHOD)
-			{
-				return operation.method;
-			}
-			//All HTTP headers are stripped in GET requests, so we should use POST instead
-			else if(operation.method == HTTPRequestMessage.GET_METHOD)
-			{
-				for(var p:String in operation.headers)
-				{
-					//Headers object contains at least one value
-					return HTTPRequestMessage.GET_METHOD;
-				}
-			}
-			
-			return null;
-		}
-		
+
 		/**
 		 * @private
 		 * Override request method for the operation and switch it back
