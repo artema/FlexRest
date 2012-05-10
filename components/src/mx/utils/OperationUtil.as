@@ -86,7 +86,7 @@ package mx.utils
 			if(header == null) throw new ArgumentError("header");
 
 			if(httpOperation.headers == null) httpOperation.headers = {};
-			httpOperation.headers["Authorization"] = "OAuth " + header.toString();
+			httpOperation.headers["Authorization"] = header.toString();
 		}
 	}
 }

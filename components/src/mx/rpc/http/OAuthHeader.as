@@ -57,7 +57,7 @@ package mx.rpc.http
 			
 			return pairs.length == 0
 				? ""
-				: pairs.join(", ");
+				: "OAuth " + pairs.join(", ");
 		}
 	}
 }
