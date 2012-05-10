@@ -103,6 +103,15 @@ package mx.rpc.http
 				return super.serializeBody(operation, obj);
 			}
 			
+			//Check if object is just a {}
+			if(typeof(obj) == "object" && getQualifiedClassName(obj) == "Object")
+			{
+				for(var p:String in obj)
+					break;
+				
+				if(p == null) return null;
+			}
+			
 			var request:Object = createRequestObject(obj);
 			
 			return serialize(request);
