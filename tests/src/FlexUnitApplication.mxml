@@ -7,20 +7,15 @@
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   xmlns:flexui="flexunit.flexui.*"
 			   minWidth="955" minHeight="600" creationComplete="onCreationComplete()">
+	
 	<fx:Script>
 		<![CDATA[
-			import flexUnitTests.JSONUtilTest;
-			import flexUnitTests.TypeUtilTest;
-			
 			public function currentRunTestSuite():Array
 			{
 				var testsToRun:Array = new Array();
 				testsToRun.push(FlexRestTests);
-				testsToRun.push(flexUnitTests.TypeUtilTest);
-				testsToRun.push(flexUnitTests.JSONUtilTest);
 				return testsToRun;
 			}
-			
 			
 			private function onCreationComplete():void
 			{
@@ -29,6 +24,7 @@
 			
 		]]>
 	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>

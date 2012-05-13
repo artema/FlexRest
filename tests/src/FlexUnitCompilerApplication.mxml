@@ -8,6 +8,7 @@ Please click on the "Refresh" icon in "FlexUnit Results" view to regenerate this
 			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
 	<fx:Script>
 		<![CDATA[
+			import flexUnitTests.OAuthSerializationFilterTest;
 			import flexUnitTests.TypeUtilTest;
 			import flexUnitTests.JSONUtilTest;
 			
@@ -16,6 +17,8 @@ Please click on the "Refresh" icon in "FlexUnit Results" view to regenerate this
 			private var flexUnitTests_TypeUtilTest_obj:flexUnitTests.TypeUtilTest;
 			
 			private var FlexRestTests_obj:FlexRestTests;
+			
+			private var flexUnitTests_OAuthSerializationFilterTest_obj:flexUnitTests.OAuthSerializationFilterTest;
 		]]>
 	</fx:Script>
 	<fx:Declarations>
