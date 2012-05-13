@@ -135,6 +135,8 @@ package mx.rpc.http
 			if(methodOverride == METHOD_OVERRIDE_VARIABLE)
 			{
 				obj["_method"] = operation.method;
+				
+				overrideRequestMethod(operation);
 			}
 
 			return obj;
