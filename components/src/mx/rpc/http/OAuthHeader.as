@@ -1,13 +1,35 @@
 package mx.rpc.http
 {
-	import flash.utils.describeType;
+	import mx.utils.OAuthUtil;
 
 	/**
 	 * OAuth authorization HTTP header.
 	 * @author Artem Abashev
 	 */
-	final dynamic public class OAuthHeader extends Object
+	final dynamic public class OAuthHeader
 	{
+		//--------------------------------------------------------------------------
+		//
+		//  Constants
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * OAuth signature method: HMAC-SHA1.
+		 */
+		static public const SIGNATURE_METHOD_HMAC_SHA1:String = "HMAC-SHA1";
+		
+		/**
+		 * OAuth signature method: HMAC-MD5.
+		 */
+		static public const SIGNATURE_METHOD_HMAC_MD5:String = "HMAC-MD5";
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Data
+		//
+		//--------------------------------------------------------------------------
+		
 		/**
 		 * Consumer key that identifies which application is making the request.
 		 */
@@ -23,10 +45,12 @@ package mx.rpc.http
 		 */
 		public var oauth_signature:String;
 		
+		[Inspectable(enumeration="HMAC-SHA1,HMAC-MD5", defaultValue="HMAC-SHA1", category="General")]
 		/**
-		 * Method name used to encode the signature.
+		 * Method name used to encode the signature. Valid values are <code>HMAC-SHA1</code> and <code>RSA-MD5</code>.
+		 * The default value is <code>HMAC-SHA1</code>.
 		 */
-		public var oauth_signature_method:String;
+		public var oauth_signature_method:String = SIGNATURE_METHOD_HMAC_SHA1;
 		
 		/**
 		 * The number of seconds since the Unix epoch at the point the request is generated.
@@ -41,7 +65,13 @@ package mx.rpc.http
 		/**
 		 * OAuth version used in this request.
 		 */
-		public var oauth_version:String;
+		public var oauth_version:String = "1.0";
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Public methods
+		//
+		//--------------------------------------------------------------------------
 		
 		public function toString():String
 		{
@@ -57,10 +87,16 @@ package mx.rpc.http
 				: "OAuth " + pairs.join(", ");
 		}
 		
+		//--------------------------------------------------------------------------
+		//
+		//  Private methods
+		//
+		//--------------------------------------------------------------------------
+		
 		static private function getPair(key:String, value:String):String
 		{
 			if(value == null) value = "";
-			return escape(key) + '="' + escape(value.toString()) + '"';
+			return OAuthUtil.percentEncode(key) + '="' + OAuthUtil.percentEncode(value.toString()) + '"';
 		}
 		
 		static private const FIELDS:Array = [

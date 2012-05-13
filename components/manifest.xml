@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <componentPackage>
+	<component id="BasicAuthenticationSerializationFilter" class="mx.rpc.http.BasicAuthenticationSerializationFilter"/>
 	<component id="CompositeSerializationFilter" class="mx.rpc.http.CompositeSerializationFilter"/>
     <component id="JSONSerializationFilter" class="mx.rpc.http.JSONSerializationFilter"/>
+    <component id="OAuthSerializationFilter" class="mx.rpc.http.OAuthSerializationFilter"/>
     <component id="RESTSerializationFilter" class="mx.rpc.http.RESTSerializationFilter"/>
 </componentPackage>
