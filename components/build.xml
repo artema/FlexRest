@@ -153,6 +153,9 @@
     		<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
     		<source-path path-element="${SOURCE_DIR}" />
     		<include-sources dir="${SOURCE_DIR}" includes="*"/>
+    		<library-path dir="${LIBS_DIR}" append="true">
+    			<include name="*.swc" />
+    		</library-path>
     		<compiler.define name="SETUP::MODERN" value="true" />
     		<compiler.define name="SETUP::LEGACY" value="false" />
     		<metadata>
