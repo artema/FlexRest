@@ -94,7 +94,7 @@ package mx.rpc.http
 			
 			var body:Object = super.serializeBody(operation, obj);	
 
-			if(oauthData == null) throw new ArgumentError("OAuth data is not provided.");
+			if(oauthData == null) return body;
 			if(oauthData.oauth_consumer_key == null) throw new ArgumentError("OAuth consumer key is not provided.");
 			if(oauthData.oauth_signature_method == null) throw new ArgumentError("OAuth signature method is not provided.");
 			if(oauthData.oauth_version == null) throw new ArgumentError("OAuth version number is not provided.");
