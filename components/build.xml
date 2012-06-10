@@ -51,6 +51,10 @@
 	</target>
 	
 	<target name="test">
+		<condition property="ADL_PATH" value="${FLEX_HOME}/bin/adl.exe" else="${FLEX_HOME}/bin/adl">
+		 	<os family="windows" />
+		</condition>
+
 		<echo>Running tests for FP9 version...</echo>
 		<mxmlc file="${TESTS_DIR}/src/${TEST_APP}.mxml" output="${TESTS_DIR}/bin/${TEST_APP}.swf">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
@@ -71,7 +75,7 @@
 		</mxmlc>
 		<flexunit 
 			swf="${TESTS_DIR}/bin/${TEST_APP}.swf"
-			command="${FLEX_HOME}/bin/adl.exe"
+			command="${ADL_PATH}"
 			toDir="${REPORTS_DIR}"
 			haltonfailure="false"
 			verbose="true" 
@@ -94,7 +98,7 @@
 		</mxmlc>
 		<flexunit 
 			swf="${TESTS_DIR}/bin/${TEST_APP}.swf" 
-			command="${FLEX_HOME}/bin/adl.exe"
+			command="${ADL_PATH}"
 			toDir="${REPORTS_DIR}"
 			haltonfailure="false"
 			verbose="true" 
