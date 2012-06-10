@@ -100,9 +100,11 @@ package mx.rpc.http
 			if(oauthData.oauth_version == null) throw new ArgumentError("OAuth version number is not provided.");
 
 			if(keySecret == null || keySecret == "") throw new ArgumentError("keySecret is not provided");
-			if(tokenSecret == null || tokenSecret == "") throw new ArgumentError("tokenSecret is not provided");
+
+			var signingKey:String = OAuthUtil.percentEncode(keySecret) + "&";
 			
-			var signingKey:String = OAuthUtil.percentEncode(keySecret) + "&" + OAuthUtil.percentEncode(tokenSecret);
+			if(tokenSecret != null && tokenSecret != "")
+				signingKey += OAuthUtil.percentEncode(tokenSecret);
 			
 			//Generate timestamp and nonce
 			var nonce:String = oauthData.oauth_nonce || OAuthUtil.generateNonce();
