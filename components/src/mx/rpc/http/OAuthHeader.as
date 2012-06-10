@@ -104,8 +104,17 @@ package mx.rpc.http
 			var value:Object;	
 			var pairs:Vector.<String> = new Vector.<String>();					
 			
-			for each(key in FIELDS) pairs.push(getPair(key, this[key]));			
-			for(key in this) pairs.push(getPair(key, this[key]));
+			for each(key in FIELDS)
+			{
+				if(this[key] != null)
+					pairs.push(getPair(key, this[key]));			
+			}
+			
+			for(key in this)
+			{
+				if(this[key] != null)
+					pairs.push(getPair(key, this[key]));
+			}
 			
 			return pairs.length == 0
 				? ""
