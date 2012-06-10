@@ -88,6 +88,16 @@ package mx.rpc.http
 		//
 		//--------------------------------------------------------------------------
 		
+		public function clone():OAuthHeader
+		{
+			var copy:OAuthHeader = new OAuthHeader();
+			var key:String;
+			
+			for each(key in FIELDS) copy[key] = this[key];
+			for(key in this) copy[key] = this[key];
+			return copy;
+		}
+		
 		public function toString():String
 		{
 			var key:String;
