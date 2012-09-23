@@ -104,7 +104,7 @@ package mx.utils
 				}
 			}
 			catch(e:Error)
-			{throw e;
+			{
 				throw new Error("Unable to serialize an object.");
 			}
 			

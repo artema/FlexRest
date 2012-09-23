@@ -19,6 +19,7 @@ package mx.rpc.http
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.mx_internal;
+	import mx.messaging.messages.HTTPRequestMessage;
 	import mx.utils.*;
 	
 	use namespace mx_internal;
@@ -109,7 +110,8 @@ package mx.rpc.http
 				for(var p:String in obj)
 					break;
 				
-				if(p == null) return null;
+				if(p == null)
+					return operation.method == HTTPRequestMessage.GET_METHOD ? null : "{}";
 			}
 			
 			var request:Object = createRequestObject(obj);

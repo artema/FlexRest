@@ -136,7 +136,8 @@ package mx.rpc.http
 			{
 				obj["_method"] = operation.method;
 				
-				overrideRequestMethod(operation);
+				if(operation.method != HTTPRequestMessage.GET_METHOD)
+					overrideRequestMethod(operation);
 			}
 
 			return obj;
@@ -164,7 +165,7 @@ package mx.rpc.http
 			}
 			
 			//Override request method by adding a _method variable to the URL
-			if(methodOverride != METHOD_OVERRIDE_NONE)
+			if(methodOverride != METHOD_OVERRIDE_NONE && operation.method != HTTPRequestMessage.GET_METHOD)
 			{
 				switch(methodOverride)
 				{
@@ -176,7 +177,7 @@ package mx.rpc.http
 						url = appendToUrl(url, "_method=" + operation.method);
 						break;
 				}
-				
+
 				overrideRequestMethod(operation);
 			}
 			
