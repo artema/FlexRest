@@ -97,6 +97,24 @@ package flexUnitTests
 		}
 		
 		[Test]
+		public function testCreateRequestObject4():void
+		{
+			var result:Object = TypeUtil.createRequestObject([{name: "John", age: 25, balance: -1000.1}, "string"]);
+			
+			Assert.assertTrue(
+				result != null,
+				result[0] != null,
+				result[0].hasOwnProperty("name"),
+				result[0].hasOwnProperty("age"),
+				result[0].hasOwnProperty("balance"),
+				result[0].name == "John",
+				result[0].age == 25,
+				result[0].balance == -1000.1,
+				result[1] == "string"				
+			);
+		}
+		
+		[Test]
 		public function testCreateTypedObject0():void
 		{
 			try

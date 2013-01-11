@@ -230,11 +230,22 @@ package mx.utils
 			if(regularObject == null) return null;			
 			if(isPrimitiveTypeObject(regularObject)) return regularObject;
 			
-			var classInfo:ClassInfo = new ClassInfo(regularObject);
-			var propertyInfo:ClassInfo;
-			var result:Object = new Object();
 			var value:Object;
 			var element:Object;
+			
+			if (regularObject is Array)
+			{
+				var resultArray:Array = [];
+			
+				for each(element in regularObject)
+					resultArray.push(createRequestObject(element));
+			
+				return resultArray;
+			}
+			
+			var classInfo:ClassInfo = new ClassInfo(regularObject);
+			var propertyInfo:ClassInfo;
+			var result:Object = new Object();			
 			
 			var properties:Vector.<String> = new Vector.<String>();
 			var p:String;
