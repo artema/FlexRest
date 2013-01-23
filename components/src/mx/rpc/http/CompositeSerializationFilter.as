@@ -28,15 +28,21 @@ package mx.rpc.http
 		//--------------------------------------------------------------------------
 		
 		public var contentTypeProvider:SerializationFilter;
-		
+
 		public var resultDeserializer:SerializationFilter;
 		
-		public var parametersSerializer:SerializationFilter;
+		[ArrayElementType("mx.rpc.http.SerializationFilter")]
+		public var resultDeserializers:Array;
 		
+		public var parametersSerializer:SerializationFilter;
+
 		public var bodySerializer:SerializationFilter;
 		
-		public var urlSerializer:SerializationFilter;
+		[ArrayElementType("mx.rpc.http.SerializationFilter")]
+		public var bodySerializers:Array;
 		
+		public var urlSerializer:SerializationFilter;
+
 		//--------------------------------------------------------------------------
 		//
 		//  Public methods
@@ -45,6 +51,14 @@ package mx.rpc.http
 		
 		override public function deserializeResult(operation:AbstractOperation, result:Object):Object
 		{
+			if (resultDeserializers != null && resultDeserializers.length > 0)
+			{
+				for each (var filter:SerializationFilter in resultDeserializers)
+					result = filter.deserializeResult(operation, result);
+				
+				return result;
+			}
+			
 			return (resultDeserializer != null) ? 
 				resultDeserializer.deserializeResult(operation, result) : 
 				super.deserializeResult(operation, result);
@@ -63,9 +77,17 @@ package mx.rpc.http
 				parametersSerializer.serializeParameters(operation, params) : 
 				super.serializeParameters(operation, params);
 		}
-		
+
 		override public function serializeBody(operation:AbstractOperation, obj:Object):Object
 		{
+			if (bodySerializers != null && bodySerializers.length > 0)
+			{
+				for each (var filter:SerializationFilter in bodySerializers)
+					obj = filter.serializeBody(operation, obj);
+				
+				return obj;
+			}
+			
 			return (bodySerializer != null) ? 
 				bodySerializer.serializeBody(operation, obj) : 
 				super.serializeBody(operation, obj);
