@@ -123,14 +123,7 @@ package mx.utils
 		 */
 		static public function generateNonce():String
 		{
-			var data:ByteArray = UIDUtil.toByteArray(UIDUtil.createUID());
-			var encoder:Base64Encoder = new Base64Encoder();	
-			encoder.encodeBytes(data, data.length);
-			
-			var result:String = encoder.toString();
-			result = result.replace(new RegExp(/[^a-zA-Z0-9]+/g), "");
-			
-			return result;
+			return UIDUtil.createUID();
 		}
 		
 		/**

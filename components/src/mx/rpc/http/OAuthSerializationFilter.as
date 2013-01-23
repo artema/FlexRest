@@ -107,8 +107,12 @@ package mx.rpc.http
 				signingKey += OAuthUtil.percentEncode(tokenSecret);
 			
 			//Generate timestamp and nonce
-			var nonce:String = oauthData.oauth_nonce || OAuthUtil.generateNonce();
-			var timestamp:uint = oauthData.oauth_timestamp || OAuthUtil.getTimestamp();
+			oauthData.oauth_nonce = oauthData.oauth_nonce != null 
+				? oauthData.oauth_nonce
+				: OAuthUtil.generateNonce();
+			oauthData.oauth_timestamp = oauthData.oauth_timestamp > 0 
+				? oauthData.oauth_timestamp
+				: OAuthUtil.getTimestamp();
 
 			//Parse the URL
 			var uri:URI = new URI(operation.url);
