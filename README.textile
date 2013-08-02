@@ -1,4 +1,4 @@
-There are three custom SerializationFilters that can make your life easier.
+There are several custom SerializationFilters that can make your life easier (requires Flex 4).
 
 h1. CompositeSerializationFilter
 
@@ -25,7 +25,7 @@ bc. <mx:HTTPService>
 			</rest:parametersSerializer>
 			<!-- Set request content type to application/json -->
 			<rest:contentTypeProvider>
-				<rest:RESTSerializationFilter requestContentType="{RESTSerializationFilter.CONTENT_TYPE_JSON}" />
+				<rest:RESTSerializationFilter requestContentType="application/json" />
 			</rest:contentTypeProvider>
 		</rest:CompositeSerializationFilter>
 	</mx:serializationFilter>
@@ -133,19 +133,16 @@ It can be converted into these:
 	public var birthday:Date;		
 	public var firstName:String;		
 	public var lastName:String;
-}
-	
+}	
 public class Car
 {
-	public var owner:User;	
+	public var owner:User;
 	[ArrayElementType("vo.Wheel")] 
 	public var wheels:Array;	
-	//You can just use vectors instead 
-	//public var wheels:Vector.&lt;Wheel>;
+	//You can just use vectors instead
+	//public var wheels:Vector.<Wheel>
 }
-	
 import flash.geom.Point;
-	
 public class Wheel
 {
 	public var position:Point;
@@ -173,7 +170,7 @@ bc. <fx:Declarations>
 				     or manually on an operation, Flex will handle 
 				     request body encoding by itself. -->
 				<rest:contentTypeProvider>
-					<rest:RESTSerializationFilter requestContentType="{RESTSerializationFilter.CONTENT_TYPE_JSON}" />
+					<rest:RESTSerializationFilter requestContentType="application/json" />
 				</rest:contentTypeProvider>
 				<!-- This serializer is required for JSON requests. -->
 				<rest:parametersSerializer>
@@ -240,6 +237,121 @@ bc. <mx:HTTPOperation
 @JSONSerializationFilter@ is an implementation of an abstract @TypedSerializationFilter@ that handles types transformation, while a concrete child class handles actual data serialization and deserialization.
 
 Setting @resultFormat@ to any other value, besides @array@ and @object@ (default) will result in a @JSONSerializationFilter@ (or any other @TypedSerializationFilter@) to be suppressed in a selected @HTTPOperation@.
+
+h1. XMLSerializationFilter
+
+Implements @deserializeResult@, @contentTypeProvider@ and @serializeBody@ methods.
+
+Acts the same way as the @JSONSerializationFilter@. You can use the optional @xmlEncode@ and @xmlDecode@ properties to assign custom serialization methods:
+
+bc. <mx:HTTPService>
+	<mx:serializationFilter>
+		<rest:CompositeSerializationFilter>
+			<!-- Serialize requests from objects to XML. -->
+			<rest:bodySerializer>
+				<rest:XMLSerializationFilter xmlEncode="{doXmlEncode}" />
+			</rest:bodySerializer>
+			<!-- Deserialize replies from XML to strongly-typed objects. -->
+			<rest:resultDeserializer>
+				<rest:XMLSerializationFilter xmlDecode="{doXmlDecode}" />
+			</rest:resultDeserializer>
+			<!-- Forces requests content type to be 'application/xml'. -->
+			<rest:contentTypeProvider>
+				<rest:RESTSerializationFilter requestContentType="application/xml" />
+			</rest:contentTypeProvider>
+			<!-- This serializer is required for XML requests. -->
+			<rest:parametersSerializer>
+				<rest:RESTSerializationFilter />
+			</rest:parametersSerializer>
+		</rest:CompositeSerializationFilter>
+	</mx:serializationFilter>
+</mx:HTTPMultiService>
+
+<pre><code>private function doXmlEncode(body:Object):XMLNode
+{
+	return new XMLNode(1, '<body id="' + body.id + '"/>');
+}
+
+private function doXmlDecode(node:XMLNode):Object
+{
+	return { id: node.attributes.id };
+}</code></pre>
+
+h1. BasicAuthenticationSerializationFilter
+
+Extends the @CompositeSerializationFilter@ with two new properties: @username@ and @password@. Will add a basic HTTP authentication header to all requests.
+
+bc. <mx:HTTPService>
+	<mx:serializationFilter>
+		<rest:BasicAuthenticationSerializationFilter username="admin" password="qwerty">
+			<rest:bodySerializer>
+				<rest:XMLSerializationFilter />
+			</rest:bodySerializer>
+			<rest:resultDeserializer>
+				<rest:XMLSerializationFilter />
+			</rest:resultDeserializer>
+			<rest:contentTypeProvider>
+				<rest:RESTSerializationFilter requestContentType="application/xml" />
+			</rest:contentTypeProvider>
+			<rest:parametersSerializer>
+				<rest:RESTSerializationFilter />
+			</rest:parametersSerializer>
+		</rest:BasicAuthenticationSerializationFilter>
+	</mx:serializationFilter>
+</mx:HTTPMultiService>
+
+h1. OAuthSerializationFilter
+
+Extends the @CompositeSerializationFilter@. Can be used to create and assign an OAuth header to your requests.
+
+bc. <mx:HTTPService>
+	<mx:serializationFilter>
+		<rest:OAuthSerializationFilter id="oauthFilter" keySecret="kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw" tokenSecret="LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE">
+			<rest:bodySerializer>
+				<rest:XMLSerializationFilter />
+			</rest:bodySerializer>
+			<rest:resultDeserializer>
+				<rest:XMLSerializationFilter />
+			</rest:resultDeserializer>
+			<rest:contentTypeProvider>
+				<rest:RESTSerializationFilter requestContentType="application/xml" />
+			</rest:contentTypeProvider>
+			<rest:parametersSerializer>
+				<rest:RESTSerializationFilter />
+			</rest:parametersSerializer>
+		</rest:BasicAuthenticationSerializationFilter>
+	</mx:serializationFilter>
+	<mx:operationList>
+		<mx:HTTPOperation
+			name="getUser"
+			url="User/[ID]" />			
+	</mx:operationList>
+</mx:HTTPMultiService>
+
+<pre><code>import mx.rpc.AbstractOperation;
+import mx.rpc.AsyncToken;
+import mx.rpc.http.OAuthHeader;
+import mx.rpc.utils.OAuthUtil;
+		
+import vo.User;
+		
+private function getUser(userId:uint):AsyncToken
+{
+	var oauthData:OAuthHeader = new OAuthHeader();
+	oauthData.oauth_version = "1.0";
+	oauthData.oauth_consumer_key = "xvz1evFS4wEEPTGEFPHBog";
+	oauthData.oauth_token = "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb";
+	oauthData.oauth_nonce = OAuthUtil.generateNonce();
+	oauthData.oauth_signature_method = OAuthHeader.SIGNATURE_METHOD_HMAC_SHA1;
+	oauthData.oauth_timestamp = OAuthUtil.getTimestamp();
+
+	var operation:AbstractOperation = service.getOperation("getUser");
+	operation.arguments = { ID: userId }; //replace URL tokens
+
+	oauthFilter.oauthData = oauthData;
+
+	return operation.send();
+}</code></pre>
 
 ---
 
