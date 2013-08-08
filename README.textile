@@ -45,27 +45,31 @@ h1. RESTSerializationFilter
 
 Implements @serializeParameters@, @contentTypeProvider@ and @serializeURL@ methods.
 
+Allows you to sent custom HTTP verbs, other than GET or POST, which is not supported by the Flash Player by default. You can specify one of the three possible ways to do that:
+* Send it in a X-HTTP-Method-Override header (@methodOverride="header"@). Don't forget to "update your crossdomain.xml":http://helpx.adobe.com/flash-player/kb/arbitrary-headers-sent-flash-player.html file to allow headers to be sent to other domains.
+* Append a @_method@ parameter to all URLs (@methodOverride="url"@).
+* Send it a request body as a @_method@ parameter (@methodOverride="variable"@). This will force your request to be serialized as @application/x-www-form-urlencoded@.
+
+This serialization filter can also be used to build dynamic URLs that containt tokenized parameters (enclosed in square brackets).
+
 bc. <fx:Declarations>
+	<rest:RESTSerializationFilter 
+		id="restSerializer" 
+		methodOverride="variable"
+		requestContentType="application/x-www-form-urlencoded" />
 	<mx:HTTPMultiService
 		id="service"
 		baseURL="http://example.com/api/"	
 	>
 		<mx:serializationFilter>
-			<rest:CompositeSerializationFilter>
-				<!-- This serializer is required in order to convert custom HTTP verbs to POST 
-				     and to set content type to 'application/x-www-form-urlencoded'. -->
-				<rest:contentTypeProvider>
-					<rest:RESTSerializationFilter />
-				</rest:contentTypeProvider>
-				<!-- This serializer will replace square bracket tokens in URLs. -->
-				<rest:urlSerializer>
-					<rest:RESTSerializationFilter />
-				</rest:urlSerializer>
-				<!-- This serializer will add a '_method' variable to your requests. -->			
-				<rest:parametersSerializer>
-					<rest:RESTSerializationFilter />
-				</rest:parametersSerializer>
-			</rest:CompositeSerializationFilter>
+			<!-- contentTypeProvider is required in order to convert custom HTTP verbs to POST 
+			and to set content type to 'application/x-www-form-urlencoded'. -->
+			<!-- urlSerializer will replace square bracket tokens in URLs. -->
+			<!-- parametersSerializer will add a '_method' variable to your requests, if needed. -->
+			<rest:CompositeSerializationFilter 
+				contentTypeProvider="{restSerializer}" 
+				urlSerializer="{restSerializer}"
+				parametersSerializer="{restSerializer}" />
 		</mx:serializationFilter>		
 		<mx:operationList>
 			<!-- 
